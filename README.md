@@ -1,4 +1,4 @@
-#Go TCP client
+# Go TCP client
 
 This is a simple TCP client that works with [AyubIRZ/go-tcp-server](https://github.com/AyubIRZ/go-tcp-server) as the communication server.
 This project will evolve to a CLI chatting client-server app.
