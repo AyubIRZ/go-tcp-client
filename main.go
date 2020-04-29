@@ -45,7 +45,9 @@ func initiateTCPConn(TCPServer string) net.Conn {
 // receiveMessage is a worker reading from TCP socket and writing the message to stdout.
 func receiveMessage(conn net.Conn, wg *sync.WaitGroup) {
 	defer wg.Done()
-	defer conn.Close()
+	defer func() {
+		_ = conn.Close()
+	}()
 
 	buf := bufio.NewReader(conn)
 
@@ -64,6 +66,9 @@ func receiveMessage(conn net.Conn, wg *sync.WaitGroup) {
 // sendMessage is a worker reading from stdin and writing the message to the TCP socket.
 func sendMessage(conn net.Conn, wg *sync.WaitGroup) {
 	defer wg.Done()
+	defer func() {
+		_ = conn.Close()
+	}()
 
 	for {
 		fmt.Print("\n---------------------------\nEnter your message: ")
@@ -80,7 +85,11 @@ func sendMessage(conn net.Conn, wg *sync.WaitGroup) {
 
 		fmt.Print("\r\033[K\033[F\r\033[K\033[F\r\033[K")
 		fmt.Print("<YOU>: ", msg)
-		_, _ = fmt.Fprint(conn, msg)
+
+		if _, err = fmt.Fprint(conn, msg); err != nil {
+			return
+		}
+
 	}
 }
 
