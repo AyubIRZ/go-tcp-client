@@ -89,6 +89,7 @@ func sendMessage(conn net.Conn, wg *sync.WaitGroup) {
 
 		msg = url.QueryEscape(msg)
 		if _, err = fmt.Fprint(conn, msg); err != nil {
+			log.Println("Sending to the TCP server failed: ", err)
 			return
 		}
 
