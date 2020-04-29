@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"net/url"
 	"os"
 	"sync"
 )
@@ -86,6 +87,7 @@ func sendMessage(conn net.Conn, wg *sync.WaitGroup) {
 		fmt.Print("\r\033[K\033[F\r\033[K\033[F\r\033[K")
 		fmt.Print("<YOU>: ", msg)
 
+		msg = url.QueryEscape(msg)
 		if _, err = fmt.Fprint(conn, msg); err != nil {
 			return
 		}
