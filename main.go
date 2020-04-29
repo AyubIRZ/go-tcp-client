@@ -13,6 +13,7 @@ const TCPServer = "localhost:6060"
 
 func main() {
 	wg := &sync.WaitGroup{}
+	defer wg.Wait()
 
 	fmt.Println("* * * TCP client started * * *")
 	fmt.Println("==============================")
@@ -22,8 +23,6 @@ func main() {
 	wg.Add(2)
 	go receiveMessage(conn, wg)
 	go sendMessage(conn, wg)
-
-	wg.Wait()
 }
 
 
@@ -45,6 +44,9 @@ func initiateTCPConn(TCPServer string) net.Conn {
 
 // receiveMessage is a worker reading from TCP socket and writing the message to stdout.
 func receiveMessage(conn net.Conn, wg *sync.WaitGroup) {
+	defer wg.Done()
+	defer conn.Close()
+
 	buf := bufio.NewReader(conn)
 
 	for {
@@ -56,14 +58,13 @@ func receiveMessage(conn net.Conn, wg *sync.WaitGroup) {
 		fmt.Print("<Server>: ", msg[:len(msg) - 1])
 		fmt.Print("\n---------------------------\nEnter your message: ")
 	}
-
-	conn.Close()
-	wg.Done()
 }
 
 
 // sendMessage is a worker reading from stdin and writing the message to the TCP socket.
 func sendMessage(conn net.Conn, wg *sync.WaitGroup) {
+	defer wg.Done()
+
 	for {
 		fmt.Print("\n---------------------------\nEnter your message: ")
 
@@ -81,7 +82,5 @@ func sendMessage(conn net.Conn, wg *sync.WaitGroup) {
 		fmt.Print("<YOU>: ", msg)
 		_, _ = fmt.Fprint(conn, msg)
 	}
-
-	wg.Done()
 }
 
